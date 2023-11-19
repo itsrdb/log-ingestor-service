@@ -9,7 +9,13 @@ import com.itsrdb.logingestor.repository.LogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Service
@@ -38,6 +44,9 @@ public class LoggingService {
     private LogMessageItems mapToDto(LogMessageItemsDto logMessageItemsDto) {
         LogMessageItems logMessageItems = new LogMessageItems();
 
+//        DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
+//        ZonedDateTime zonedDateTime = ZonedDateTime.parse(logMessageItemsDto.getTimestamp(), formatter);
+
         logMessageItems.setLevel(logMessageItemsDto.getLevel());
         logMessageItems.setMessage(logMessageItemsDto.getMessage());
         logMessageItems.setResourceId(logMessageItemsDto.getResourceId());
@@ -50,9 +59,37 @@ public class LoggingService {
         return logMessageItems;
     }
 
-    public List<LogMessageItems> getLogsByQuery() {
+    public List<LogMessageItems> getLogsByQuery(
+            String message,
+            String level,
+            String resourceId,
+            String traceId,
+            String spanId,
+            String commit,
+            LocalDate beforeDate,
+            LocalDate afterDate
+    ) {
+        ZonedDateTime zonedBeforeDate = null;
+        ZonedDateTime zonedAfterDate = null;
+
+        LocalTime defaultTime = LocalTime.of(12, 0);
+        ZoneId istZone = ZoneId.of("Asia/Kolkata");
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
+
+        if(beforeDate != null){
+            zonedBeforeDate = ZonedDateTime.of(beforeDate, defaultTime, istZone);
+        }
+        if(afterDate != null){
+            zonedAfterDate = ZonedDateTime.of(afterDate, defaultTime, istZone);
+        }
+        if(level != null && level.isBlank()){
+            level = null;
+        }
+
         List<LogMessageItems> logMessageItemsList = logMessageRepository
-                .findLogByFilter("abc");
+                .findLogByFilter(level, message, resourceId, traceId, spanId,
+                        commit, zonedBeforeDate, zonedAfterDate);
+
         log.info("Printing search query [{}]", logMessageItemsList);
         return logMessageItemsList;
     }
