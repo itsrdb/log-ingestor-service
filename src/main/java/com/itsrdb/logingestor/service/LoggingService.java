@@ -9,7 +9,6 @@ import com.itsrdb.logingestor.repository.LogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -28,9 +27,6 @@ public class LoggingService {
     public String storeLogs(LogMessageRequest logMessageRequest) {
         LogMessage logMessage = new LogMessage();
 
-        log.info("Hey is it working?");
-        log.error(logMessageRequest.toString());
-
         List<LogMessageItems> logMessageItemsList = logMessageRequest.getLogMessageItemsDtoList()
                 .stream()
                 .map(this::mapToDto)
@@ -43,9 +39,6 @@ public class LoggingService {
 
     private LogMessageItems mapToDto(LogMessageItemsDto logMessageItemsDto) {
         LogMessageItems logMessageItems = new LogMessageItems();
-
-//        DateTimeFormatter formatter = DateTimeFormatter.ISO_INSTANT;
-//        ZonedDateTime zonedDateTime = ZonedDateTime.parse(logMessageItemsDto.getTimestamp(), formatter);
 
         logMessageItems.setLevel(logMessageItemsDto.getLevel());
         logMessageItems.setMessage(logMessageItemsDto.getMessage());
@@ -67,7 +60,8 @@ public class LoggingService {
             String spanId,
             String commit,
             LocalDate beforeDate,
-            LocalDate afterDate
+            LocalDate afterDate,
+            String parentResourceId
     ) {
         ZonedDateTime zonedBeforeDate = null;
         ZonedDateTime zonedAfterDate = null;
@@ -88,9 +82,8 @@ public class LoggingService {
 
         List<LogMessageItems> logMessageItemsList = logMessageRepository
                 .findLogByFilter(level, message, resourceId, traceId, spanId,
-                        commit, zonedBeforeDate, zonedAfterDate);
+                        commit, zonedBeforeDate, zonedAfterDate, parentResourceId);
 
-        log.info("Printing search query [{}]", logMessageItemsList);
         return logMessageItemsList;
     }
 }

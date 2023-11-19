@@ -28,7 +28,8 @@ public class LogMessageRepository {
                                                  String spanId,
                                                  String commit,
                                                  ZonedDateTime beforeDate,
-                                                 ZonedDateTime afterDate) {
+                                                 ZonedDateTime afterDate,
+                                                 String parentResourceId) {
         JPAQueryFactory queryFactory = new JPAQueryFactory(entityManager);
         QLogMessageItems qLogMessageItems = QLogMessageItems.logMessageItems;
 
@@ -58,20 +59,17 @@ public class LogMessageRepository {
             predicate.and(qLogMessageItems.commit.contains(commit));
         }
 
-        log.info("Printing dates: [{}], [{}]", beforeDate, afterDate);
         if (beforeDate != null) {
-            log.info("Adding before data as [{}]", beforeDate);
             predicate.and(qLogMessageItems.timestamp.before(beforeDate));
         }
 
         if (afterDate != null) {
-            log.info("Adding after data as [{}]", afterDate);
             predicate.and(qLogMessageItems.timestamp.after(afterDate));
         }
 
-        log.info("Printing Predicate", predicate);
-        log.info("Printing GET attributes", message, level, resourceId, traceId,
-                spanId, commit, beforeDate, afterDate);
+        if (parentResourceId != null) {
+            predicate.and(qLogMessageItems.metadata.parentResourceId.contains(parentResourceId));
+        }
 
         return queryFactory
                 .selectFrom(qLogMessageItems)

@@ -25,7 +25,6 @@ public class LoggingServiceController {
     @PostMapping("/ingest")
     @ResponseStatus(HttpStatus.ACCEPTED)
     public CompletableFuture<String> ingestLogs(@RequestBody LogMessageRequest logMessageRequest) {
-        log.info("Printing request: [{}]", logMessageRequest);
         return CompletableFuture.supplyAsync(()-> loggingService.storeLogs(logMessageRequest));
     }
 
@@ -41,12 +40,9 @@ public class LoggingServiceController {
             @RequestParam(required = false)
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate beforeDate,
             @RequestParam(required = false)
-            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate afterDate) {
-        log.info("Controller GET attributes message: [{}], level: [{}], resourceId: [{}]," +
-                        "traceId: [{}], spanId: [{}], commit: [{}], beforeDate: [{}]," +
-                        "afterDate: [{}]", query, level, resourceId, traceId,
-                spanId, commit, beforeDate, afterDate);
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate afterDate,
+            @RequestParam(required = false) String parentResourceId) {
         return loggingService.getLogsByQuery(query, level, resourceId, traceId,
-                spanId, commit, beforeDate, afterDate);
+                spanId, commit, beforeDate, afterDate, parentResourceId);
     }
 }
