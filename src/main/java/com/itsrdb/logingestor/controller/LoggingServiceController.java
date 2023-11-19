@@ -1,12 +1,14 @@
 package com.itsrdb.logingestor.controller;
 
 import com.itsrdb.logingestor.dto.LogMessageRequest;
+import com.itsrdb.logingestor.model.LogMessageItems;
 import com.itsrdb.logingestor.service.LoggingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -24,9 +26,9 @@ public class LoggingServiceController {
         return CompletableFuture.supplyAsync(()-> loggingService.storeLogs(logMessageRequest));
     }
 
-//    @GetMapping("/search")
-//    @ResponseStatus(HttpStatus.OK)
-//    public List<LogMessageItems> getLogs(){
-//        return loggingService.getLogsByQuery();
-//    }
+    @GetMapping("/search")
+    @ResponseStatus(HttpStatus.OK)
+    public List<LogMessageItems> queryLogs(){
+        return loggingService.getLogsByQuery();
+    }
 }

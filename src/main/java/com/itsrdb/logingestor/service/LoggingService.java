@@ -4,6 +4,7 @@ import com.itsrdb.logingestor.dto.LogMessageItemsDto;
 import com.itsrdb.logingestor.dto.LogMessageRequest;
 import com.itsrdb.logingestor.model.LogMessage;
 import com.itsrdb.logingestor.model.LogMessageItems;
+import com.itsrdb.logingestor.repository.LogMessageRepository;
 import com.itsrdb.logingestor.repository.LogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +17,7 @@ import java.util.List;
 @Slf4j
 public class LoggingService {
     private final LogRepository logRespository;
+    private final LogMessageRepository logMessageRepository;
 
     public String storeLogs(LogMessageRequest logMessageRequest) {
         LogMessage logMessage = new LogMessage();
@@ -48,7 +50,10 @@ public class LoggingService {
         return logMessageItems;
     }
 
-//    public List<LogMessageItems> getLogsByQuery() {
-//
-//    }
+    public List<LogMessageItems> getLogsByQuery() {
+        List<LogMessageItems> logMessageItemsList = logMessageRepository
+                .findLogByFilter("abc");
+        log.info("Printing search query [{}]", logMessageItemsList);
+        return logMessageItemsList;
+    }
 }
