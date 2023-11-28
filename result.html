@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Results</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        .result-row {
+            margin-bottom: 10px;
+        }
+
+        .result-title {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2>Search Results</h2>
+
+        <div id="searchResults" class="result-row"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+
+        var searchResults = new URLSearchParams(window.location.search).get('results');
+
+        if (searchResults) {
+            try {
+                var results = JSON.parse(searchResults);
+                displayResults(results);
+            } catch (error) {
+                console.error('Error parsing JSON:', error);
+                displayError('Error parsing JSON. Please try again.');
+            }
+        } else {
+            displayError('No search results found.');
+        }
+
+        function displayResults(results) {
+            var searchResultsElement = document.getElementById('searchResults');
+
+            if (results.length > 0) {
+
+                var table = document.createElement('table');
+                table.classList.add('table', 'table-bordered', 'table-hover');
+
+                var headerRow = document.createElement('tr');
+                headerRow.innerHTML = '<th>#</th>'; 
+                for (var key in results[0]) {
+
+                    if (key !== 'id') {
+                        var headerCell = document.createElement('th');
+                        headerCell.textContent = key;
+                        headerRow.appendChild(headerCell);
+                    }
+                }
+                table.appendChild(headerRow);
+
+                results.forEach((result, index) => {
+                    var row = document.createElement('tr');
+
+                    var numberCell = document.createElement('td');
+                    numberCell.textContent = index + 1;
+                    row.appendChild(numberCell);
+
+                    for (var key in result) {
+
+                        if (key !== 'id') {
+                            var cell = document.createElement('td');
+
+                            var value = typeof result[key] === 'string' ? result[key].replace(/^"(.*)"$/, '$1') : result[key];
+
+                            if (key === 'metadata' && result[key].hasOwnProperty('parentResourceId')) {
+                                value = 'parentResourceId: ' + result[key]['parentResourceId'];
+                            }
+
+                            cell.textContent = value;
+                            row.appendChild(cell);
+                        }
+                    }
+                    table.appendChild(row);
+                });
+
+                searchResultsElement.appendChild(table);
+            } else {
+
+                searchResultsElement.innerHTML = '<p>No search results found.</p>';
+            }
+        }
+
+        function displayError(message) {
+            var searchResultsElement = document.getElementById('searchResults');
+            searchResultsElement.innerHTML = '<p class="text-danger">' + message + '</p>';
+        }
+    </script>
+
+</body>
+</html>

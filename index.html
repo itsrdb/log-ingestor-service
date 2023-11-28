@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Search Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        .row {
+            margin-bottom: 10px;
+        }
+
+        .error-message {
+            flex: 70%;
+        }
+
+        .level {
+            flex: 30%;
+        }
+
+        input[type="text"], select, input[type="date"] {
+            flex: 1;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        #searchResults {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <form id="searchForm" method="GET" onsubmit="performSearch(); return false;">
+            <div class="row">
+                <div class="col-md-8 error-message">
+                    <label for="searchInput">Search Error Message:</label>
+                    <input type="text" class="form-control" id="searchInput" name="query" placeholder="Search...">
+                </div>
+                <div class="col-md-4 level">
+                    <label for="levelFilter">Level:</label>
+                    <select class="form-control" id="levelFilter" name="level">
+                        <option value="">All Levels</option>
+                        <option value="info">Info</option>
+                        <option value="debug">Debug</option>
+                        <option value="error">Error</option>
+                        <option value="warn">Warn</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col">
+                    <label for="resourceIdFilter">Resource ID:</label>
+                    <input type="text" class="form-control" id="resourceIdFilter" name="resourceId" placeholder="Enter resource ID...">
+                </div>
+                <div class="col">
+                    <label for="traceIdFilter">Trace ID:</label>
+                    <input type="text" class="form-control" id="traceIdFilter" name="traceId" placeholder="Enter trace ID...">
+                </div>
+                <div class="col">
+                    <label for="spanIdFilter">Span ID:</label>
+                    <input type="text" class="form-control" id="spanIdFilter" name="spanId" placeholder="Enter span ID...">
+                </div>
+                <div class="col">
+                    <label for="commitFilter">Commit:</label>
+                    <input type="text" class="form-control" id="commitFilter" name="commit" placeholder="Enter commit...">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-4 level">
+                    <label for="parentResourceIdFilter">Metadata.parentResourceId:</label>
+                    <input type="text" class="form-control" id="parentResourceIdFilter" name="parentResourceId" placeholder="Enter parentResourceId...">
+                </div>
+                <div class="col">
+                    <label for="beforeDate">Before Date:</label>
+                    <input type="date" class="form-control" id="beforeDate" name="beforeDate">
+                </div>
+                <div class="col">
+                    <label for="afterDate">After Date:</label>
+                    <input type="date" class="form-control" id="afterDate" name="afterDate">
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Search</button>
+
+            <div class="row mt-3">
+                <div class="col">
+                    <h5>Instructions</h5>
+                    <ul style="list-style-type:disc">
+                        <li>You can use multiple filters together by writing different search queries and clicking on search button to get results.</li>
+                        <li>Text boxes can be left empty to disable filter on the particular attribute.</li>
+                    </ul>
+                </div>
+            </div>
+        </form>
+
+        <div id="searchResults"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.7/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+
+        function performSearch() {
+
+            var searchInput = document.getElementById('searchInput').value;
+            var levelFilter = document.getElementById('levelFilter').value;
+            var resourceIdFilter = document.getElementById('resourceIdFilter').value;
+            var traceIdFilter = document.getElementById('traceIdFilter').value;
+            var spanIdFilter = document.getElementById('spanIdFilter').value;
+            var commitFilter = document.getElementById('commitFilter').value;
+            var beforeDate = document.getElementById('beforeDate').value;
+            var afterDate = document.getElementById('afterDate').value;
+            var parentResourceId = document.getElementById('parentResourceIdFilter').value;
+
+            var url = 'http://localhost:3000/api/logs/search?' +
+                    'query=' + searchInput +
+                    '&level=' + levelFilter +
+                    '&resourceId=' + resourceIdFilter +
+                    '&traceId=' + traceIdFilter +
+                    '&spanId=' + spanIdFilter +
+                    '&commit=' + commitFilter +
+                    '&beforeDate=' + beforeDate +
+                    '&afterDate=' + afterDate +
+                    '&parentResourceId=' + parentResourceId;
+
+            console.log('Performing search with URL:', url);
+
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+
+                    var resultPageUrl = 'result.html?results=' + encodeURIComponent(JSON.stringify(data));
+                    window.location.href = resultPageUrl;
+                })
+                .catch(error => {
+
+                    console.error('Error during search:', error);
+                    alert('Error during search. Please try again.'); 
+                });
+        }
+    </script>
+
+</body>
+</html>
